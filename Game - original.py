@@ -8,6 +8,7 @@ from graphics import *
 from cards import *
 from deck import *
 from button import *
+from money import *
 
 def intro():
     #The intro screen of the game, showing Start, Exit, and Rules button
@@ -30,7 +31,7 @@ def intro():
     while not Quit.isClicked(pt):
         if start.isClicked(pt):  #if start is clicked, then invoke the function that start the game 
             win1.close()
-            main()
+            play(3000)
             break  #exit the loop, close the intro win, open the main win
         elif rule.isClicked(pt): #if rule is clicked, open the rules window
             rules()
@@ -79,7 +80,7 @@ def rules():
     line6.setFace('calibri')
     line6.draw(win2)
     
-def main():
+def play(fund):
     #create the window where the game happened
     win = GraphWin('Black Jack', 1000, 600)
     win.setCoords(0, 0, 200, 200)
@@ -88,10 +89,53 @@ def main():
 
     #draw the basic buttons
     hit = Button(win, Point(40,20), 20,10, "Hit")
+    hit.deactivate()
     stand = Button(win, Point(80,20), 20, 10, "Stand")
+    stand.deactivate()
     restart = Button(win, Point(120,20), 20, 10, "Restart")
+    restart.deactivate()
     Exit = Button(win, Point(160,20), 20, 10, "Exit")
+    Exit.deactivate()
+
+    # Money feature
+    chip1_img=Image(Point(180,50),"chip1.gif")
+    chip1_img.draw(win)
+    chip2_img=Image(Point(180,85),"chip2.gif")
+    chip2_img.draw(win)
+    chip3_img=Image(Point(180,118),"chip3.gif")
+    chip3_img.draw(win)
+    chip4_img=Image(Point(180,150),"chip4.gif")
+    chip4_img.draw(win)
+    showChip_img=Image(Point(155,100),"showChip.gif")
+    showChip_img.draw(win)
+    deal_img=Image(Point(196,8),"deal.gif")
+    deal_img.draw(win)
+
+    chip1 = Button(win,Point(180,50),10,10,"1")
+    chip2 = Button(win,Point(180,85),10,10,"10") 
+    chip3 = Button(win,Point(180,118),10,10,"100")
+    chip4 = Button(win,Point(180,150),10,10,"500")
+    betButton = Button(win,Point(191,15),15,10,"DEAL")
     
+    showChip = Button(win,Point(155,100),10,10,"")
+    showChipLabel = Text(Point(155,100),"0")
+    showChipLabel.draw(win)
+
+    # Class 'Money' is used for this feature
+    money = Money(fund)
+    cashDisp = Text(Point(180,185),"Cash: $"+str(money.cash))
+    cashDisp.setFill("gold")
+    cashDisp.setSize(25)
+    cashDisp.draw(win)
+    betDisp = Text(Point(180,175),"Bet: $"+str(money.betAmount))
+    betDisp.setFill("gold")
+    betDisp.setSize(25)
+    betDisp.draw(win)
+
+    amount = []
+    chipValue = [1,10,100,500]
+    chipName = [chip1,chip2,chip3,chip4]
+
     #A place to display the side (player-dealer), and the scores
     playerName = Text(Point(50, 75),"Player:")
     playerName.setFill("white")
@@ -114,17 +158,67 @@ def main():
     dealerScore.draw(win)
 
     #placeholder for the result 
-    result = Text(Point(100, 100),'')
+    result = Text(Point(90, 100),'')
     result.setSize(30)
     result.setFace("calibri")
     result.setStyle('bold')
     result.setFill("gold")
     result.draw(win)
 
+
+   # Before game starts, check if player has run out of cash
+    if money.cash <= 0:
+        result.setText("You don't have any cash left. Please end the game")
+        hit.deactivate()
+        stand.deactivate()
+        restart.deactivate
+
+        pt = win.getMouse()
+        while not Exit.isClicked(pt):
+            if Exit.isClicked(pt):
+                win.close()
+            pt = win.getMouse()
+
+    # If not, start the game
+    else:        
+        # Allows user to bet an amount of cash before the game
+        pt = win.getMouse()
+        while (not betButton.isClicked(pt)):
+
+            for num in range(4):  #Bet
+                if chipName[num].isClicked(pt):
+                    money.cashOut(chipValue[num])
+                    amount.append(chipValue[num])
+            if len(amount) != 0:
+                showChipLabel.setText(str(amount[-1]))
+            else:
+                showChipLabel.setText("0")
+
+            cashDisp.setText("Cash: $" + str(money.cash))
+            betDisp.setText("Bet: $" + str(money.betAmount))
+            
+            if showChip.isClicked(pt):  #Unbet
+                if not len(amount) == 0:
+                    money.cashBack(amount.pop())
+                    if not len(amount) == 0:
+                        showChipLabel.setText(str(amount[-1]))
+                    else:
+                        showChipLabel.setText("0")
+                else:
+                    showChipLabel.setText("0")
+                cashDisp.setText("Cash: $" + str(money.cash))
+                betDisp.setText("Bet: $" + str(money.betAmount))
+            pt = win.getMouse()
+        # Bet button is deactivated, player cannot bet anymore            
+        betButton.deactivate()
+
     #generate a BlackJack obj, let it have the first deal
     game = BlackJack()
     game.initDeal(win, 50, 50, 50, 150)
-
+    hit.activate()
+    stand.activate()
+    restart.activate()
+    Exit.activate()
     playerScore.setText(str(game.evaluateHand(game.pHand))) #only show player score
 
     #if the player already got 21 right after initial deal, unhide the dealer card, check and result
@@ -132,11 +226,13 @@ def main():
         result.setText('BLACK JACK! You Win!')
         hit.deactivate()
         stand.deactivate()
+        money.win()
     if game.evaluateHand(game.pHand) == 21 and game.evaluateHand(game.dHand) == 21:
         game.Hcard.undraw()
         result.setText("It's  a Stand-off")
         hit.deactivate()
         stand.deactivate()
+        money.push()
 
     pt = win.getMouse()
     #the x value for the 3rd card to be drawn, will incremented after each click of hit
@@ -157,17 +253,20 @@ def main():
                     result.setText('PUSH! It\'s a tie!')
                     hit.deactivate()  #deactivate the hit/stand button
                     stand.deactivate()
+                    money.push()
                 else:
                     game.Hcard.undraw()
                     result.setText('You Win')
                     hit.deactivate()
                     stand.deactivate()
+                    money.win()
 
             elif game.evaluateHand(game.pHand) > 21:  #check if the player busted. If yet, end the game, deactivate hit/stand button
                 game.Hcard.undraw()
                 result.setText('BUSTED! You lose')
                 hit.deactivate()
                 stand.deactivate()
+                money.lose()
                 
         elif stand.isClicked(pt):
             game.dealerPlays(win, inixD, 150)  #the player stop dealing cards, it's dealer's turn
@@ -179,33 +278,39 @@ def main():
                 result.setText('DEALER BUSTED! You wins')
                 hit.deactivate()
                 stand.deactivate()
+                money.win()
             elif game.evaluateHand(game.pHand) == 21 and game.evaluateHand(game.dHand) == 21: #check if there is a push
                 game.Hcard.undraw()
                 result.setText('PUSH! It\'s a tie!')
                 hit.deactivate()
                 stand.deactivate()
+                money.push()
             else:  #either case: dealer got 21 and player got < 21; or dealer got < 21. The check still remains the same
                 if game.evaluateHand(game.dHand) < game.evaluateHand(game.pHand):
                     game.Hcard.undraw()
                     result.setText('You score is greater, you win')
                     hit.deactivate()
                     stand.deactivate()
+                    money.win()
                 elif game.evaluateHand(game.dHand) > game.evaluateHand(game.pHand):
                     game.Hcard.undraw()
                     result.setText('You score is lower, you lose')
                     hit.deactivate()
                     stand.deactivate()
+                    money.lose()
                 else:
                     game.Hcard.undraw()
                     result.setText('PUSH! It\'s a tie!')
                     hit.deactivate()
                     stand.deactivate()
+                    money.push()
 
         elif restart.isClicked(pt):
             game.dHand.clear() #Clear the current hands of both player and dealer
             game.pHand.clear()
-            win.close() #kind-of restart the window (close it, then open it again
-            main()
+            fund = money.cash
+            win.close() #kind-of restart the window (close it, then open it again)
+            play(fund)
             break
         pt = win.getMouse()
     win.close()
