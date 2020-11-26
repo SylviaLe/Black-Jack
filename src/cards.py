@@ -15,7 +15,7 @@ class Card:
     def __init__(self, suit, rank):
         self.suit = suit
         self.rank = rank
-        self.imgfile =  self.__str__() + '.gif'  #the file name of the card
+        self.imgfile = 'img/' + self.__str__() + '.gif'  #the file name of the card
 
     def getSuit(self):
         return self.suit
@@ -43,6 +43,7 @@ class Card:
             cardName = suits[3] + ranks[self.rank - 1] 
         return cardName  
         #since we need the file name more, we don't write want to write out the full name of the card
+
     def getImgFile(self):
         return self.imgfile  #return the file name of the matching card
 

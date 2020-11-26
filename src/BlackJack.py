@@ -25,7 +25,7 @@ class BlackJack:
           self.deck.shuffle()
           self.dHand = dHand
           self.pHand = pHand
-          self.Hcard = Image(Point(50, 150), 'b2fv.gif')
+          self.Hcard = Image(Point(50, 150), 'img/b2fv.gif')
           
      def initDeal(self, window, xposP, yposP, xposD, yposD):
          #Distribute the first two cards to the player and the dealer. Generate the coords at which the card will be drawn

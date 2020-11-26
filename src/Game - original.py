@@ -14,7 +14,7 @@ def intro():
     #The intro screen of the game, showing Start, Exit, and Rules button
     win1 = GraphWin('Welcome to Black Jack', 1000, 600)
     win1.setCoords(0, 0, 400, 400)
-    theme = Image(Point(200,200),"BJTheme.gif")  #pick a nice background for the game
+    theme = Image(Point(200,200),"theme/BJTheme.gif")  #pick a nice background for the game
     theme.draw(win1)
 
     proName = Text(Point(200,300), 'Black Jack')
@@ -44,7 +44,7 @@ def rules():
     #create a window to show rules
     win2 = GraphWin('Black Jack Rules', 400, 400)
     win2.setCoords(0, 0, 200, 200)
-    theme = Image(Point(100,100),"BJTheme4.gif")
+    theme = Image(Point(100,100),"theme/BJTheme4.gif")
     theme.draw(win2)
 
     title = Text(Point(100, 175), 'Rules:')
@@ -84,7 +84,7 @@ def play(fund):
     #create the window where the game happened
     win = GraphWin('Black Jack', 1000, 600)
     win.setCoords(0, 0, 200, 200)
-    theme = Image(Point(100,100),"BJTheme3.gif") 
+    theme = Image(Point(100,100),"theme/BJTheme3.gif") 
     theme.draw(win)
 
     #draw the basic buttons
@@ -98,17 +98,17 @@ def play(fund):
     Exit.deactivate()
 
     # Money feature
-    chip1_img=Image(Point(180,50),"chip1.gif")
+    chip1_img=Image(Point(180,50),"img/chip1.gif")
     chip1_img.draw(win)
-    chip2_img=Image(Point(180,85),"chip2.gif")
+    chip2_img=Image(Point(180,85),"img/chip2.gif")
     chip2_img.draw(win)
-    chip3_img=Image(Point(180,118),"chip3.gif")
+    chip3_img=Image(Point(180,118),"img/chip3.gif")
     chip3_img.draw(win)
-    chip4_img=Image(Point(180,150),"chip4.gif")
+    chip4_img=Image(Point(180,150),"img/chip4.gif")
     chip4_img.draw(win)
-    showChip_img=Image(Point(155,100),"showChip.gif")
+    showChip_img=Image(Point(155,100),"img/showChip.gif")
     showChip_img.draw(win)
-    deal_img=Image(Point(196,8),"deal.gif")
+    deal_img=Image(Point(196,8),"img/deal.gif")
     deal_img.draw(win)
 
     chip1 = Button(win,Point(180,50),10,10,"1")
